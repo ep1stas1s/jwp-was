@@ -1,11 +1,11 @@
 package webserver.request;
 
-public class General {
+public class RequestFirstLine {
     private String method;
     private String uri;
     private String version;
 
-    public General(String requestFirstLine) {
+    public RequestFirstLine(String requestFirstLine) {
         String[] splitFirstLine = requestFirstLine.split(" ");
         checkRequestFirstLine(splitFirstLine);
         this.method = splitFirstLine[0];

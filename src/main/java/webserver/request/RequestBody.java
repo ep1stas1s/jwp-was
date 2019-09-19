@@ -2,6 +2,7 @@ package webserver.request;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class RequestBody {
 
@@ -12,7 +13,9 @@ public class RequestBody {
     }
 
     public String get(String key) {
-        return body.get(key);
+        return Optional.ofNullable(body.get(key))
+                .orElseThrow(() ->
+                        new IllegalArgumentException(String.format("key 값(%s)에 해당되는 Body 데이터가 존재하지 않습니다.", key)));
     }
 
     public void put(String body) {

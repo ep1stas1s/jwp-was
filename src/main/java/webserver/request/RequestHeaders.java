@@ -19,6 +19,10 @@ public class RequestHeaders {
         return headers.get(key);
     }
 
+    public boolean containsKey(String key) {
+        return headers.containsKey(key);
+    }
+
     @Override
     public String toString() {
         return "RequestHeaders{" +
