@@ -2,14 +2,13 @@ package webserver.request;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-
-import utils.IOUtils;
 
 public class Request {
 
@@ -29,11 +28,8 @@ public class Request {
 
     public static Request of(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
         RequestFirstLine requestFirstLine = new RequestFirstLine(bufferedReader.readLine());
-
-        logger.debug("request method : {}", requestFirstLine.getMethod());
-        logger.debug("request uri : {}", requestFirstLine.getFullUri());
-
         RequestParams requestParams = getRequestParams(requestFirstLine);
         RequestHeaders requestHeaders = getRequestHeaders(bufferedReader);
         RequestBody requestBody = getRequestBody(bufferedReader, requestHeaders);
@@ -52,8 +48,8 @@ public class Request {
     }
 
     private static RequestHeaders getRequestHeaders(BufferedReader bufferedReader) throws IOException {
-        String headerLine;
         RequestHeaders requestHeaders = new RequestHeaders();
+        String headerLine;
         while (!(headerLine = bufferedReader.readLine()).equals("")) {
             String[] splitHeader = headerLine.split(":");
             requestHeaders.put(splitHeader[0].trim(), splitHeader[1].trim());
