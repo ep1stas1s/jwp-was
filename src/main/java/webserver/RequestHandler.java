@@ -5,11 +5,10 @@ import org.slf4j.LoggerFactory;
 import webserver.request.Request;
 import webserver.response.HttpResponse;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RequestHandler implements Runnable {
@@ -30,7 +29,16 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
 
-            Request request = Request.of(in);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+
+            List<String> lines = new ArrayList<>();
+
+            String line;
+            while (!(line = bufferedReader.readLine()).equals("")) {
+                lines.add(line);
+            }
+
+            Request request = new Request(lines);
 
             HttpResponse httpResponse = RequestMapper.controller(request);
 

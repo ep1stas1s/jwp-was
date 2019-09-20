@@ -6,9 +6,7 @@ import utils.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class Request {
 
@@ -19,42 +17,13 @@ public class Request {
     private RequestParams requestParams;
     private RequestBody requestBody;
 
-    private Request(RequestFirstLine requestFirstLine, RequestHeaders requestHeaders, RequestParams requestParams, RequestBody requestBody) {
-        this.requestFirstLine = requestFirstLine;
-        this.requestHeaders = requestHeaders;
-        this.requestParams = requestParams;
-        this.requestBody = requestBody;
-    }
-
-    public static Request of(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-
-        RequestFirstLine requestFirstLine = new RequestFirstLine(bufferedReader.readLine());
-        RequestParams requestParams = getRequestParams(requestFirstLine);
-        RequestHeaders requestHeaders = getRequestHeaders(bufferedReader);
-        RequestBody requestBody = getRequestBody(bufferedReader, requestHeaders);
-
-        return new Request(requestFirstLine, requestHeaders, requestParams, requestBody);
-    }
-
-    private static RequestBody getRequestBody(BufferedReader bufferedReader, RequestHeaders requestHeaders) throws IOException {
-        RequestBody requestBody = new RequestBody();
-
-        if (requestHeaders.containsKey("Content-Length")) {
-            String requestBodyString = IOUtils.readData(bufferedReader, Integer.parseInt(requestHeaders.get("Content-Length")));
-            requestBody.put(requestBodyString);
+    public Request(List<String> lines) {
+        if (lines.size() == 0) {
+            throw new IllegalArgumentException("line이 0임;;");
         }
-        return requestBody;
-    }
-
-    private static RequestHeaders getRequestHeaders(BufferedReader bufferedReader) throws IOException {
-        RequestHeaders requestHeaders = new RequestHeaders();
-        String headerLine;
-        while (!(headerLine = bufferedReader.readLine()).equals("")) {
-            String[] splitHeader = headerLine.split(":");
-            requestHeaders.put(splitHeader[0].trim(), splitHeader[1].trim());
-        }
-        return requestHeaders;
+        this.requestFirstLine = new RequestFirstLine(lines.get(0));
+        this.requestParams = getRequestParams(requestFirstLine);
+        getRequestHeaders(lines);
     }
 
     private static RequestParams getRequestParams(RequestFirstLine requestFirstLine) {
@@ -65,6 +34,22 @@ public class Request {
             requestParams.put(search);
         }
         return requestParams;
+    }
+
+    private void getRequestHeaders(List<String> lines) {
+        this.requestHeaders = new RequestHeaders();
+        for (int i = 1; i < lines.size(); i++) {
+            String line = lines.get(i);
+            String[] splitHeader = line.split(":", 2);
+            requestHeaders.put(splitHeader[0].trim(), splitHeader[1].trim());
+
+            if (line.equals("")) {
+                this.requestBody = new RequestBody();
+                if (requestHeaders.containsKey("Content-Length")) {
+                    requestBody.put(lines.get(i + 1));
+                }
+            }
+        }
     }
 
     public String getMethod() {
@@ -89,7 +74,6 @@ public class Request {
     public String getPath() {
         return requestFirstLine.getUri();
     }
-
 
     public String getVersion() {
         return requestFirstLine.getVersion();

@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +26,7 @@ class RequestTest {
         stringBuilder.append("\r\n");
 
         InputStream inputStream = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
-        request = Request.of(inputStream);
+//        request = Request.of(inputStream);
     }
 
     @DisplayName("Version 을 확인한다.")
@@ -66,7 +67,8 @@ class RequestTest {
         stringBuilder.append("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net\r\n");
 
         InputStream inputStream = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
-        Request requestWithContents = Request.of(inputStream);
+        Request requestWithContents = new Request(new ArrayList<>());
+//        Request requestWithContents = Request.of(inputStream);
 
         assertThat(requestWithContents.getBody("userId")).isEqualTo("javajigi");
         assertThat(requestWithContents.getBody("password")).isEqualTo("password");

@@ -1,9 +1,11 @@
 package webserver;
 
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,11 @@ public class ExecutorsTest {
         es.shutdown();
         es.awaitTermination(100, TimeUnit.SECONDS);
         logger.info("Total Elaspsed: {}", sw.getTotalTimeSeconds());
+    }
+
+    @Test
+    void name() {
+        System.out.println(Arrays.toString("a:b:c".split(":", 2)));
     }
 }
 
